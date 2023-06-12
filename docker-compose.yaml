@@ -1,0 +1,53 @@
+version: '3.7'
+services:
+  backend:
+    build:
+      context: ./news_aggregator_website_backend
+      dockerfile: Dockerfile
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_DATABASE: news
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    ports:
+      - 8000:8000
+    volumes:
+      - ./news_aggregator_website_backend:/app/news_aggregator_website_backend
+    depends_on:
+      - db
+    networks:
+      - app
+
+  frontend:
+    build:
+      context: ./news_aggregator_website_fontend
+      dockerfile: Dockerfile
+    tty: true  
+    ports:
+      - 3000:3000
+    volumes:
+      - ./news_aggregator_website_fontend:/app/news_aggregator_website_fontend
+    depends_on:
+      - backend
+    networks:
+      - app
+
+  db:
+    image: mysql:5.7.22
+    environment:
+      MYSQL_DATABASE: 'news'
+      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: 'root'
+    volumes:
+      - dbdata:/var/lib/mysql/
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
+
+volumes:
+  dbdata:
